@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import SettingButton from "./SettingButton";
+import { signOut } from "next-auth/react";
 
 const Header = () => {
   return (
@@ -22,7 +23,7 @@ const Header = () => {
           START
         </button>
         <SettingButton />
-        <button className="text-white">
+        <button className="text-white px-10" onClick={async () => await signOut()}>
           Logout
         </button>
       </div>
