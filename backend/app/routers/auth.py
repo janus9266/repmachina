@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
+from typing import Optional
 
 router = APIRouter (
     prefix="/api/auth",
@@ -6,6 +7,8 @@ router = APIRouter (
 )
 
 @router.post("/login")
-async def google_signin(token: str):
-    print("************ Token ************", token)
-    return
+async def google_signin(authorization: Optional[str] = Header(None)):
+    print("************ Token ************", authorization)
+    if authorization is None:
+        raise HTTPException(status_code=400, detail="Authentication Failed")
+    return {"User-Agent": "Test User"}

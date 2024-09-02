@@ -18,7 +18,7 @@ app.add_middleware(
 # API Routers
 app.include_router(AuthRouter)
 
-@app.get("/")
+@app.get("/api")
 def read_root():
     return {"Hello": "World"}
 
