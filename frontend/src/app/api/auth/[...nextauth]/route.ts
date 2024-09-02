@@ -17,9 +17,11 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account, user }) {
-      console.log("+++++++++++++++++++++", token, account)
+    async jwt({ token, account, user }) {      
       if (account) {
+        console.log("+++++++++++++++++++++ token: ", token)
+        console.log("+++++++++++++++++++++ account", account)
+        console.log("++++++++++++++++++++ Backend URL", `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`)
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
           {
