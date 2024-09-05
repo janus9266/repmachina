@@ -23,12 +23,12 @@ class User(BaseModel):
     avatar: str = Field(...)
 
 class UserUpdate(User):
-    client_id: str = Field(...)
-    client_secret: str = Field(...)
-    jwt_token: str = Field(...)
-    client_name: str = Field(...)
-    client_password: str = Field(...)
-    ext_number: str = Field(...)
+    client_id: Optional[str] = None
+    client_secret: Optional[str] = None
+    jwt_token: Optional[str] = None
+    client_name: Optional[str] = None
+    client_password: Optional[str] = None
+    ext_number: Optional[str] = None
 
 class UserDocument(Document, UserUpdate):
     class Settings:
