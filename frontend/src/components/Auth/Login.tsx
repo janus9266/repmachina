@@ -15,6 +15,10 @@ const Login = ({ isAuth } : {isAuth: boolean}) => {
     if (isAuth) router.push(callbackUrl)
   }, []);
 
+  const handleSignin = async () => {
+    await signIn('google');
+  }
+
   return (
     <div className="flex min-h-screen items-center">
     <div className="flex justify-center w-full text-white">
@@ -54,7 +58,7 @@ const Login = ({ isAuth } : {isAuth: boolean}) => {
 
         <button
           className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray-2 p-[15px] font-medium hover:bg-opacity-50"
-          onClick={async () => await signIn("google")}
+          onClick={() => handleSignin()}
         >
           <span>
             <svg

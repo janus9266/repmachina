@@ -4,19 +4,35 @@ import GoogleProvider from "next-auth/providers/google";
 const handler = NextAuth({
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       httpOptions: {
         timeout: 40000,
       },
       authorization: {
         params: {
-          scope: 'openid profile email'
+          scope: 'openid profile email',
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
         },
       },
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: '/signin',
+  },
   callbacks: {
+    async signIn({ account, profile }) {
+      console.log("+++++++++++++++++++++++++++++++ SignIn")
+      if(account?.provider === "google"){        
+        console.log("+++++++++++++++++++++++++++++++")
+        return true
+      } else {
+        return "/signup"
+      }
+    },
     async jwt({ token, account, user }) {      
       if (account) {
         console.log("+++++++++++++++++++++ token: ", token)
@@ -54,6 +70,7 @@ const handler = NextAuth({
       return session;
     },
   },
+  debug: process.env.NODE_ENV !== "production" ? true : false,
 });
 
 export { handler as GET, handler as POST };
