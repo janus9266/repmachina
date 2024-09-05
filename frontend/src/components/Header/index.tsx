@@ -1,11 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
-import SettingButton from "./SettingButton";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import SettingModal from "./SettingModal";
 
-const Header = () => {
+interface HeaderProps {
+  signout: () => void;
+}
+
+const Header = ({ signout }: HeaderProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   return (
     <header className="sticky top-0 z-999 flex w-full px-10 py-5">
@@ -39,7 +42,7 @@ const Header = () => {
             />
           </svg>
         </button>
-        <button className="text-white px-10" onClick={async () => await signOut()}>
+        <button className="text-white px-10" onClick={signout}>
           Logout
         </button>
       </div>

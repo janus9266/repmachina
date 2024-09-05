@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
 
-const SignIn = () => {
+const SignInPage = () => {
   return (
     <div className="flex min-h-screen items-center">
     <div className="flex justify-center w-full text-white">
@@ -88,4 +88,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignInPage;

@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/app/api/axiosConfig";
 import { useAuth } from "@/context/AuthContext";
 
-const SettingModal = ({isOpen, onClose }) => {
+interface SettingModalProps {
+  isOpen: boolean,
+  onClose: () => void;
+}
+
+const SettingModal = ({ isOpen, onClose }: SettingModalProps) => {
   const [ clientId, setClientId ] = useState<string>("");
   const [ clientSecret, setClientSecret ] = useState<string>("");
   const [ jwtToken, setJwtToken ] = useState<string>(""); 
@@ -13,7 +18,7 @@ const SettingModal = ({isOpen, onClose }) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    const handleEsc = (event) => {
+    const handleEsc = (event: KeyboardEvent) => {
       if (event.keyCode === 27) onClose();
     };
     window.addEventListener('keydown', handleEsc);
@@ -36,7 +41,6 @@ const SettingModal = ({isOpen, onClose }) => {
       if (response)
         onClose()
     } catch (error) {
-      console.log("+++++++++++++++++++", error);
     }
   }
 
@@ -97,7 +101,7 @@ const SettingModal = ({isOpen, onClose }) => {
             <input
               type="text"
               placeholder="Input your Client Name"
-              value={clentName}
+              value={clientName}
               onChange={(e) => setClientName(e.target.value)}
               className="w-full rounded-[7px] border-[1.5px] border-gray-500 bg-transparent px-5 py-1 text-dark outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-gray-2"
             />

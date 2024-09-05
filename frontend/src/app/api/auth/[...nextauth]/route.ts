@@ -20,24 +20,12 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  pages: {
-    signIn: '/signin',
-  },
   callbacks: {
-    async signIn({ account, profile }) {
-      console.log("+++++++++++++++++++++++++++++++ SignIn")
-      if(account?.provider === "google"){        
-        console.log("+++++++++++++++++++++++++++++++")
-        return true
-      } else {
-        return "/signup"
-      }
+    async redirect({ url, baseUrl }) {
+      return baseUrl;
     },
     async jwt({ token, account, user }) {      
       if (account) {
-        console.log("+++++++++++++++++++++ token: ", token)
-        console.log("+++++++++++++++++++++ account", account)
-        console.log("++++++++++++++++++++ Backend URL", `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`)
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
           {
@@ -52,7 +40,7 @@ const handler = NextAuth({
           id_token: account.id_token,
         });
         token = Object.assign({}, token, {
-          myToken: resParsed.authToken,
+          access_token: resParsed.access_token,
         });
       }
 
@@ -64,13 +52,12 @@ const handler = NextAuth({
           id_token: token.id_token,
         });
         session = Object.assign({}, session, {
-          authToken: token.myToken,
+          access_token: token.access_token,
         });
       }
       return session;
     },
   },
-  debug: process.env.NODE_ENV !== "production" ? true : false,
 });
 
 export { handler as GET, handler as POST };
