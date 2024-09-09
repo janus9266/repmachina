@@ -9,6 +9,15 @@ interface HeaderProps {
 }
 
 const Header = ({ signout }: HeaderProps) => {
+  const handleStart = async () => {
+    const res = await fetch('/api/supervision/start', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   return (
     <header className="sticky top-0 z-999 flex w-full px-10 py-5">
@@ -25,7 +34,7 @@ const Header = ({ signout }: HeaderProps) => {
         </Link>
       </div>
       <div className="flex items-center justify-normal gap-6">
-        <button className="border rounded-xl bg-white text-black px-10">
+        <button onClick={handleStart} className="border rounded-xl bg-white text-black px-10">
           START
         </button>
         <button onClick={() => setIsModalOpen(true)}>
