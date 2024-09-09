@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from app.database.database import lifespan
 from app.routers.auth import router as AuthRouter
+from app.routers.supervision import router as SupervisionRouter
+from app.routers.setting import router as SettingRouter
 
 app = FastAPI(
     lifespan=lifespan,
@@ -17,8 +19,10 @@ app.add_middleware(
 
 # API Routers
 app.include_router(AuthRouter)
+app.include_router(SupervisionRouter)
+app.include_router(SettingRouter)
 
-@app.get("/")
+@app.get("/api")
 def read_root():
     return {"Hello": "World"}
 

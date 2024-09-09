@@ -3,17 +3,16 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
-const Login = ({ isAuth } : {isAuth: boolean}) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || "/";
+const SignInPage = () => {
+  const { data: session } = useSession();
 
   useEffect(() => {
-    if (isAuth) router.push(callbackUrl)
-  }, []);
+    if (session?.access_token) {
+      localStorage.setItem("access_token", session.access_token);
+    }
+  }, [session]);
 
   return (
     <div className="flex min-h-screen items-center">
@@ -97,4 +96,4 @@ const Login = ({ isAuth } : {isAuth: boolean}) => {
   );
 };
 
-export default Login;
+export default SignInPage;

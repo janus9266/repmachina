@@ -11,7 +11,8 @@
   "dependencies": {
     "@auth/unstorage-adapter": "^2.4.2",
     "@vercel/kv": "^1.0.1",
-    "axios": "^1.7.5",
+    "axios": "^1.7.7",
+    "jwt-decode": "^4.0.0",
     "next": "14.2.7",
     "next-auth": "^4.24.7",
     "react": "^18",

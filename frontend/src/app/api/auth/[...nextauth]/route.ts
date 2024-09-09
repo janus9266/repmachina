@@ -4,21 +4,27 @@ import GoogleProvider from "next-auth/providers/google";
 const handler = NextAuth({
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       httpOptions: {
         timeout: 40000,
       },
       authorization: {
         params: {
-          scope: 'openid profile email'
+          scope: 'openid profile email',
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
         },
       },
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      return baseUrl;
+    },
     async jwt({ token, account, user }) {
-      console.log("+++++++++++++++++++++", token, account)
       if (account) {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
@@ -34,10 +40,9 @@ const handler = NextAuth({
           id_token: account.id_token,
         });
         token = Object.assign({}, token, {
-          myToken: resParsed.authToken,
+          access_token: resParsed.access_token,
         });
       }
-
       return token;
     },
     async session({ session, token }) {
@@ -46,7 +51,7 @@ const handler = NextAuth({
           id_token: token.id_token,
         });
         session = Object.assign({}, session, {
-          authToken: token.myToken,
+          access_token: token.access_token,
         });
       }
       return session;
@@ -54,4 +59,4 @@ const handler = NextAuth({
   },
 });
 
-export { handler as GET, handler as POST, handler };
+export { handler as GET, handler as POST };
