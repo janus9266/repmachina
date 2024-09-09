@@ -1,13 +1,22 @@
 import { useEffect, useState } from "react";
-import axiosInstance from "@/app/api/axiosConfig";
+import { Setting } from "@/types/setting";
 import { useAuth } from "@/context/AuthContext";
 
 interface SettingModalProps {
+  setting: Setting | null,
   isOpen: boolean,
   onClose: () => void;
+  onSave: (setting: Setting) => void;
 }
 
-const SettingModal = ({ isOpen, onClose }: SettingModalProps) => {
+const SettingModal = ({
+  setting,
+  isOpen,
+  onClose,
+  onSave,
+}: SettingModalProps) => {
+  const { user } = useAuth()
+
   const [ clientId, setClientId ] = useState<string>("");
   const [ clientSecret, setClientSecret ] = useState<string>("");
   const [ jwtToken, setJwtToken ] = useState<string>(""); 
@@ -15,7 +24,24 @@ const SettingModal = ({ isOpen, onClose }: SettingModalProps) => {
   const [ clientPassword, setClientPassword ] = useState<string>("");
   const [ extNumber, setExtNumber ] = useState<string>("");
 
-  const { user } = useAuth();
+  useEffect(() => {
+    if (setting === null) {
+      setClientId("");
+      setClientSecret("");
+      setJwtToken("");
+      setClientName("");
+      setClientPassword("");
+      setExtNumber("");
+    } else {
+      setClientId(setting.client_id);
+      setClientSecret(setting.client_secret);
+      setJwtToken(setting.jwt_token);
+      setClientName(setting.user_name);
+      setClientPassword(setting.password);
+      setExtNumber(setting.ext_number);
+    }
+
+  }, [setting])
 
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
@@ -28,20 +54,21 @@ const SettingModal = ({ isOpen, onClose }: SettingModalProps) => {
     };
   }, [onClose])
 
-  const handleSave = async () => {
-    try {
-      const response = await axiosInstance.put(`/users/${user?._id}`, {
-        "client_id": clientId,
-        "client_secret": clientSecret,
-        "jwt_token": jwtToken,
-        "client_name": clientName,
-        "client_password": clientPassword,
-        "ext_number": extNumber
-      })
-      if (response)
-        onClose()
-    } catch (error) {
-    }
+  const handleSave = () => {
+    if (user === null) return;   
+    
+    onSave({
+      _id: setting?._id,
+      user_id: user.id,
+      client_id: clientId,
+      client_secret: clientSecret,
+      jwt_token: jwtToken,
+      user_name: clientName,
+      password: clientPassword,
+      ext_number: extNumber
+    });
+
+    onClose();
   }
 
   if (!isOpen) return null;

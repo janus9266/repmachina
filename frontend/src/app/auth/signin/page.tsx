@@ -3,9 +3,17 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 const SignInPage = () => {
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session?.access_token) {
+      localStorage.setItem("access_token", session.access_token);
+    }
+  }, [session]);
+
   return (
     <div className="flex min-h-screen items-center">
     <div className="flex justify-center w-full text-white">

@@ -16,8 +16,7 @@ const refreshToken = async () => {
     localStorage.setItem('access_token', new_token);
     return new_token
   } catch (error) {
-    console.error('Error refreshing token', error);
-    throw new Error('Failed to refresh token');
+    throw new Error('Failed to refresh token!');
   }
 }
 
@@ -41,7 +40,7 @@ axiosInstance.interceptors.response.use(
         error.config.headers['Authorization']=`Bearer ${newToken}`;
         return axiosInstance.request(error.config);
       } catch (refreshError) {
-        console.error('Token refresh failed', refreshError);
+        throw new Error('Failed to refresh token!');
       }
     }
 

@@ -1,21 +1,55 @@
+import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import SettingModal from "./SettingModal";
+import { Setting } from "@/types/setting";
+import axiosInstance from "@/app/api/axiosConfig";
+import { useAuth } from "@/context/AuthContext";
 
 interface HeaderProps {
   signout: () => void;
 }
 
 const Header = ({ signout }: HeaderProps) => {
+  const { user } = useAuth();
+
+  const [setting, setSetting] = useState<Setting | null>(null)
+
+  useEffect(() => {
+    if (user === null) return;
+
+    const fetchSetting = async () => {
+      try {
+        const user_id = user.id;
+        const response = await axiosInstance.get(`/settings/${user_id}`)
+        setSetting(response.data);
+      } catch (error) {
+        setIsModalOpen(true);
+        throw new Error('Failed to fetch setting!');        
+      }
+    }
+    fetchSetting();
+  }, [user])
+
   const handleStart = async () => {
-    const res = await fetch('/api/supervision/start', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/supervision/start`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
     });
+  }
+
+  const handleSave = async (setModel: Setting) => {
+    try {
+      setting === null ?
+        await axiosInstance.post(`/settings`, setModel) :
+        await axiosInstance.put(`/settings/${setting._id}`, setModel);
+    } catch (error) {
+      throw new Error("Failed save setting!");
+    }
   }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,7 +89,7 @@ const Header = ({ signout }: HeaderProps) => {
           Logout
         </button>
       </div>
-      <SettingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SettingModal setting={setting} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} />
     </header>
   );
 };

@@ -20,11 +20,11 @@ export const AuthProvider = ({ children, }: Readonly<{children: React.ReactNode;
   const router = useRouter();
 
   useEffect(() => {
-    const token: string | null = localStorage.getItem('access_token');
+    const token: string | null = window.localStorage.getItem('access_token');
 
     try {
       if (!token) {
-        router.push('/signin');
+        router.push('/auth/signin');
       } else {
         const decodedToken = jwtDecode<JwtPayload>(token);
         const subject = JSON.stringify(decodedToken.sub);
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children, }: Readonly<{children: React.ReactNode;
       router.push('/signin');
       setUser(null);
     }
-  }, []);
+  }, [router]);
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>

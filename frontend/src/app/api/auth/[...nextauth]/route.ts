@@ -24,7 +24,7 @@ const handler = NextAuth({
     async redirect({ url, baseUrl }) {
       return baseUrl;
     },
-    async jwt({ token, account, user }) {      
+    async jwt({ token, account, user }) {
       if (account) {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
@@ -43,7 +43,6 @@ const handler = NextAuth({
           access_token: resParsed.access_token,
         });
       }
-
       return token;
     },
     async session({ session, token }) {
