@@ -35,6 +35,7 @@ TranscriptionEngine.prototype = {
       thisClass.transcript.index = res.result_index
       thisClass.transcript.text = res.results?.[0]?.alternatives?.[0]?.transcript
       var text = res.results?.[0]?.alternatives?.[0]?.transcript
+      console.log("transcribe: ", text);
       if (text.length > 0) {
         text = text.trim()
         server.sendKeywordEvent(text);
