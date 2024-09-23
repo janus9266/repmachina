@@ -1,23 +1,21 @@
-from fastapi import Request, APIRouter
+from fastapi import Request, APIRouter, Response, Header
 from ringcentral import SDK
-import json
+from typing import Optional
 from config import CONFIG
+import json
 
 router = APIRouter (
     prefix="/api/supervision",
-    tags=["users"],
+    tags=["supervision"],
 )
+
+monitoredAgents = []
+
+DELIVERY_ADDRESS= CONFIG.delivery_address + "/webhook"
 
 @router.post("/start")
 async def start_subscription():
     login()
-
-
-# @app.post("/webhook")
-# async def webhook(request: Request):
-#     body = await request.json()
-#     print("Received event: ", body)
-#     return {"status": "ok"}
 
 # @app.on_event("startup")
 # async def setup_subscription():
@@ -29,6 +27,27 @@ async def start_subscription():
 #     subscription.add_events(events)
 #     subscription.set_listener(lambda message: print(message))
 #     subscription.subscribe()
+
+def subscribe_for_activecalls():
+    try:
+        eventFilters = []
+        for agent in monitoredAgents:
+            eventFilters.append(f'/restapi/v1.0/account/~/extension/{agent["id"]}/telephony/sessions')
+       
+        bodyParams = {
+            'eventFilters' : eventFilters,
+            'deliveryMode': {
+                'transportType': 'WebHook',
+                'address': DELIVERY_ADDRESS
+            },
+            'expiresIn': 3600
+        }
+
+        endpoint = "/restapi/v1.0/subscription"
+        resp = platform.post(endpoint, bodyParams)
+        print ("Ready to receive incoming Voice Call via WebHook.")
+    except Exception as e:
+        print(f"An exception was thrown: {e}")
 
 def read_agent_active_calls(agentExtensionId, supervisorDeviceId):
     try:
@@ -69,6 +88,15 @@ def read_call_monitoring_groups():
     except Exception as e:
       print ("Unable to call list call monitoring groups." + str(e))
 
+def read_supervision_devices(uri: str):
+    try:
+        endpoint = f'{uri}/device'
+        resp = platform.get(endpoint)
+        jsonObj = resp.json_dict()
+        print("Call monitor devices: ", jsonObj['records'])
+    except Exception as e:
+        print ("Unable to read devices of this call monitoring group." + str(e))
+
 def read_call_monitoring_group_members(groupId):
     try:
         endpoint = f'/restapi/v1.0/account/~/call-monitoring-groups/{groupId}/members'
@@ -77,13 +105,38 @@ def read_call_monitoring_group_members(groupId):
         print ("Call monitoring group members:")
         for member in jsonObj['records']:
             print (json.dumps(member, indent=2, sort_keys=True))
+            if member.get("permissions")[0] == "Monitored":
+                agentInfo = {
+                    "id": member.get("id"),
+                    "status": 'Disconnected',
+                    "mergedTransription": {
+                        "index": -1,
+                        "customer": [],
+                        "agent": []
+                    }
+                }
+                monitoredAgents.append(agentInfo)
+            elif member.get("permissions")[0] == "Monitoring":
+                read_supervision_devices(member.get("uri"))
     except Exception as e:
         print ("Unable to read members of this call monitoring group." + str(e))
 
+def get_active_calls():
+    params = {
+        'view': "Simple"
+    }
+
+    resp = platform.get('/restapi/v1.0/account/~/extension/~/active-calls', params)
+    print(f"Active Calls: ", resp.json().records)
+    for record in resp.json().records:
+        print(f'Call result: {record.result}')
+
 def login():
     try:
+        monitoredAgents.clear()
         platform.login(jwt=CONFIG.rc_user_jwt)
         read_call_monitoring_groups()
+        subscribe_for_activecalls()
     except Exception as e:
         print("Unable to authenticate to platform. Check credentials. " + str(e))
 
