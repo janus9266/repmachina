@@ -1,26 +1,22 @@
 import React, { useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { signOut } from "next-auth/react";
 import { useState } from "react";
-import SettingModal from "./SettingModal";
-import { Setting } from "@/types/setting";
-import axiosInstance from "@/app/api/axiosConfig";
-import { useAuth } from "@/context/AuthContext";
+import SettingModal from "../SettingModal";
+import { Setting } from "../../types/setting";
+import { useAuth } from "../../contexts/AuthContext";
+import axiosInstance from "../../axiosConfig";
 
 interface HeaderProps {
   signout: () => void;
   start: () => void;
+  processing: boolean;
 }
 
-const Header = ({
-  signout,
-  start
-}: HeaderProps) => {
+const Header = ({ signout, start, processing }: HeaderProps) => {
   const { user } = useAuth();
 
-  const [setting, setSetting] = useState<Setting | null>(null)
-  const [starting, setStarting] = useState<boolean>(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [setting, setSetting] = useState<Setting | null>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     if (user === null) return;
@@ -28,48 +24,65 @@ const Header = ({
     const fetchSetting = async () => {
       try {
         const user_id = user.id;
-        const response = await axiosInstance.get(`/settings/${user_id}`)
+        const response = await axiosInstance.get(`/settings/${user_id}`);
         setSetting(response.data);
       } catch (error) {
         setIsModalOpen(true);
-        throw new Error('Failed to fetch setting!');        
       }
-    }
+    };
     fetchSetting();
-  }, [user])
+  }, [user]);
+
+  useEffect(() => {
+    if (setting === null) return;
+
+    if (loggedIn) return;
+
+    const loginPlatform = async () => {
+      try {
+        await axiosInstance.post(`/platform/login`, setting);
+        setLoggedIn(true);
+      } catch (error) {
+        // throw new Error("Failed login to platform");
+      }
+    };
+
+    loginPlatform();
+  }, [setting, loggedIn]);
 
   const handleStart = async () => {
     start();
-  }
+  };
 
   const handleSave = async (setModel: Setting) => {
     try {
-      setting === null ?
-        await axiosInstance.post(`/settings`, setModel) :
-        await axiosInstance.put(`/settings/${setting._id}`, setModel);
+      setting === null
+        ? await axiosInstance.post(`/settings`, setModel)
+        : await axiosInstance.put(`/settings/${setting._id}`, setModel);
     } catch (error) {
       throw new Error("Failed save setting!");
     }
-  }
+  };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   return (
     <header className="sticky top-0 z-999 flex w-full px-10 py-5">
       <div className="flex flex-grow items-center">
-        <Link className="flex-shrink-0" href="/">
-          <Image
+        <a className="flex-shrink-0" href="/">
+          <img
             src="/logo.png"
             alt="Logo"
             className="dark:invert"
             width={160}
             height={13}
-            priority
           />
-        </Link>
+        </a>
       </div>
       <div className="flex items-center justify-normal gap-6">
-        <button onClick={handleStart} className="border rounded-xl bg-white text-black px-10">
-          START
+        <button
+          onClick={handleStart}
+          className="border rounded-xl bg-white text-black px-10"
+        >
+          {processing ? "STOP" : "START"}
         </button>
         <button onClick={() => setIsModalOpen(true)}>
           <svg
@@ -89,7 +102,12 @@ const Header = ({
           Logout
         </button>
       </div>
-      <SettingModal setting={setting} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} />
+      <SettingModal
+        setting={setting}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSave}
+      />
     </header>
   );
 };

@@ -8,9 +8,13 @@ import { AuthProvider } from "@/context/AuthContext";
 
 interface Props {
   children: ReactNode;
+  onStart: () => void;
 }
 
-const DefaultLayout = (props: Props) => {
+const DefaultLayout = ({
+  children,
+  onStart
+}: Props) => {
   // const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -18,22 +22,18 @@ const DefaultLayout = (props: Props) => {
     await signOut();
   }
 
-  // useEffect(() => {
-  //   if (status === "loading") return; // Don't redirect until session status is loaded
-
-  //   if (!session) {
-  //     router.push('/auth/signin'); // Redirect to sign-in page
-  //   }
-  // }, [session, status, router]);
+  const handleStart = () => {
+    onStart()
+  }
 
   return (
     <AuthProvider>
       <div className="flex h-screen overflow-hidden text-white">
         <div className="relative flex flex-1 flex-col">
-          <Header signout={handleSignOut} />
+          <Header signout={handleSignOut} start={handleStart} />
           <main>
             <div className="mx-auto max-w-screen px-10 py-5">
-              {props.children}
+              {children}
             </div>
           </main>
           <Footer />
