@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }: Props) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('access_token');
   };
 
   const isAuthenticated = () => {

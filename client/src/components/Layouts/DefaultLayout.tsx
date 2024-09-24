@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Header from "../Header";
 import Footer from "../Footer";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface Props {
   children: ReactNode;
@@ -9,8 +10,10 @@ interface Props {
 }
 
 const DefaultLayout = ({ children, onStart, processing }: Props) => {
+  const { logout } = useAuth();
+
   const handleSignOut = async () => {
-    // await signOut();
+    await logout();
   };
 
   const handleStart = () => {

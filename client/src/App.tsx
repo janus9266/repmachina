@@ -11,7 +11,11 @@ function App() {
       <Router>
         <Routes>
           <Route path="/signin" element={<SignInPage />} />
-          <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
+          <Route path="/" element={
+            <PrivateRoute>
+              <HomePage />
+            </PrivateRoute>
+          } />
         </Routes>
       </Router>
     </AuthProvider>

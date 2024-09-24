@@ -2,8 +2,11 @@ import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode';
 import { User } from "../../types";
+import { useAuth } from "../../contexts/AuthContext";
 
 const SignInPage = () => {
+  const { login } = useAuth();
+
   const navigate = useNavigate();
 
   const handleSuccess = async (response: any) => {
@@ -27,7 +30,7 @@ const SignInPage = () => {
         const decoded = jwtDecode<User>(resParsed.access_token);
 
         localStorage.setItem('access_token', resParsed.access_token);
-        localStorage.setItem('user', JSON.stringify(decoded))
+        login(decoded);
 
         navigate('/');
       }

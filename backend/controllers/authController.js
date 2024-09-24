@@ -26,7 +26,7 @@ exports.googleAuth = async (req, res) => {
         avatar: payload.picture
       })
 
-      await newUser.save();
+      await user.save();
     }
 
     const customToken = jwt.sign(
